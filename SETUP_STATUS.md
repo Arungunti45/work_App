@@ -36,3 +36,13 @@
 - Contractor Onboarding Flow: DONE
 - Profile Completeness Calculation: DONE
 - Role/Onboarding Routing Guards: DONE
+
+## Phase 4: Categories & Complete Job System
+- Categories & Skills Schema: DONE
+- Cloud Functions Moderation/Audit: DONE
+- Firestore Rules (Jobs & Audit): DONE
+- Employer Job Form & Drafting: DONE
+- Employer Job List: DONE
+- Admin Moderation Queue: DONE
+- Worker Job Discovery: DONE
+- Firebase Seed Script: DONE

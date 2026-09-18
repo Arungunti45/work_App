@@ -19,8 +19,18 @@ GET-YOUR-JOB/
 ├── frontend/    # User-facing web application
 ├── admin/       # Administrator dashboard
 ├── functions/   # Firebase Cloud Functions (backend)
-├── docs/        # Project documentation
-├── .gitignore
+├── docs/        ## Current Status
+
+**Phase 6 Completed: Applications, Hiring Workflow & Interviews**
+- Worker application flow (with duplicate protection)
+- Employer applicant management
+- Secure Application Statuses (Cloud Function driven)
+- Interviews & Offers structure
+- Atomic Hiring (Vacancy tracking and job closure)
+- Advanced Security Rules & Audit Event stubs
+- Fully tested and typed
+
+*Note: Phase 7 (Messaging/Notifications) has not yet started.*
 ├── README.md
 └── SETUP_STATUS.md
 ```
