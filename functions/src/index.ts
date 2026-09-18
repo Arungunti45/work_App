@@ -8,3 +8,4 @@ export * from './messaging';
 export * from './notifications';
 export * from './safety';
 export * from './seed';
+export * from './finance';

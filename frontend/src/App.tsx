@@ -47,6 +47,13 @@ import { SafetyPage } from './pages/safety/SafetyPage';
 import { VerificationPage } from './pages/verification/VerificationPage';
 import { BlockedUsersPage } from './pages/settings/BlockedUsersPage';
 
+// Support (Phase 12)
+import { UserSupport } from './pages/support/UserSupport';
+
+// Finance & Subscription (Phase 13)
+import { PricingPage } from './pages/finance/PricingPage';
+import { SubscriptionCheckout, PaymentHistory } from './pages/finance/SubscriptionPages';
+
 export const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -69,6 +76,11 @@ export const App: React.FC = () => {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/select-role" element={<RoleSelection />} />
+            <Route path="/support/*" element={<UserSupport />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/subscription/checkout" element={<SubscriptionCheckout />} />
+            <Route path="/payment-history" element={<PaymentHistory />} />
+            <Route path="/invoices" element={<PaymentHistory />} />
             
             {/* Role Protected Routes (Requires Onboarding) */}
             <Route element={<RoleProtectedRoute allowedRoles={['WORKER']} requireOnboarding={true} />}>
@@ -116,7 +128,7 @@ export const App: React.FC = () => {
               <Route path="/contractor/onboarding" element={<ContractorOnboarding />} />
             </Route>
 
-            <Route element={<RoleProtectedRoute allowedRoles={['ADMIN']} requireOnboarding={false} />}>
+            <Route element={<RoleProtectedRoute allowedRoles={['SUPER_ADMIN', 'KYC_MANAGER', 'OPERATIONS_MANAGER', 'FINANCE_MANAGER', 'SUPPORT_AGENT']} requireOnboarding={false} />}>
               <Route path="/admin/*" element={<AdminDashboard />} />
               <Route path="/admin/moderation" element={<AdminModeration />} />
             </Route>

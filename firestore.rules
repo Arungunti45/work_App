@@ -9,9 +9,12 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      // For this phase, assuming isAdmin relies on a custom claim or checking a user profile.
-      // Easiest is checking the user profile document role:
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN';
+      let role = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      return isAuthenticated() && (role == 'SUPER_ADMIN' || role == 'KYC_MANAGER' || role == 'OPERATIONS_MANAGER' || role == 'FINANCE_MANAGER' || role == 'SUPPORT_AGENT');
+    }
+    
+    function hasRole(targetRole) {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == targetRole;
     }
 
     // Existing Profile Rules
@@ -20,12 +23,13 @@ service cloud.firestore {
       allow create: if isAuthenticated() 
                    && request.auth.uid == userId
                    && request.resource.data.uid == userId
-                   && request.resource.data.accountStatus == 'active';
+                   && request.resource.data.accountStatus == 'active'
+                   && !(request.resource.data.role in ['SUPER_ADMIN', 'KYC_MANAGER', 'OPERATIONS_MANAGER', 'FINANCE_MANAGER', 'SUPPORT_AGENT']);
       allow update: if isAuthenticated() 
                    && request.auth.uid == userId
                    && request.resource.data.uid == userId
                    && request.resource.data.accountStatus == resource.data.accountStatus
-                   && request.resource.data.role != 'ADMIN';
+                   && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
       allow delete: if false; 
     }
 
@@ -206,6 +210,71 @@ service cloud.firestore {
                     && request.resource.data.resolvedBy == null;
       // Status changes, resolution — server only
       allow update, delete: if false;
+    }
+
+    // ================================================================
+    // Phase 12: Support Tickets
+    // ================================================================
+    match /supportTickets/{ticketId} {
+      allow read: if isAuthenticated() && (resource.data.requesterUid == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated()
+                    && request.resource.data.requesterUid == request.auth.uid
+                    && request.resource.data.status == 'OPEN'
+                    && request.resource.data.assignedAdminUid == null;
+      allow update: if isAdmin();
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isAdmin() || (isAuthenticated() 
+                    && get(/databases/$(database)/documents/supportTickets/$(ticketId)).data.requesterUid == request.auth.uid 
+                    && resource.data.isInternalNote == false);
+        allow create: if isAdmin() || (isAuthenticated()
+                    && get(/databases/$(database)/documents/supportTickets/$(ticketId)).data.requesterUid == request.auth.uid
+                    && request.resource.data.senderUid == request.auth.uid
+                    && request.resource.data.isInternalNote == false);
+        allow update, delete: if false;
+      }
+    }
+
+    // ================================================================
+    // Phase 12: Analytics
+    // ================================================================
+    match /analytics/{document=**} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ================================================================
+    // Phase 13: Finance and Ads
+    // ================================================================
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /subscriptions/{subscriptionId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if false; // Only Cloud Functions can manage subscriptions
+    }
+    
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if false; // Only Cloud Functions manage payments and webhooks
+    }
+    
+    match /invoices/{invoiceId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if false; // Only Cloud Functions create invoices
+    }
+    
+    match /refunds/{refundId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if false; // Only Cloud Functions process refund requests and approvals
+    }
+
+    match /ads/{adId} {
+      allow read: if true; // Ad fetching is public (or authenticated)
+      allow write: if isAdmin();
     }
 
     // ================================================================

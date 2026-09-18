@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:staging": "tsc -b && vite build --mode staging",
+    "deploy:staging": "firebase deploy --only hosting --project get-your-job-staging",
+    "build:prod": "tsc -b && vite build --mode production",
+    "deploy:prod": "firebase deploy --only hosting --project get-your-job-prod",
     "lint": "oxlint",
     "preview": "vite preview"
   },

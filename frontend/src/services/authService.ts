@@ -210,6 +210,11 @@ export class AuthService {
       case 'auth/network-request-failed':
         message = "Network error. Please check your connection.";
         break;
+      case 'auth/invalid-api-key':
+      case 'auth/api-key-not-valid.-please-pass-a-valid-api-key.':
+      case 'auth/api-key-not-valid':
+        message = "Invalid Firebase API key. Please update VITE_FIREBASE_API_KEY in frontend/.env with your real Firebase Project API Key, or set VITE_USE_EMULATOR=true to use Firebase Local Emulators.";
+        break;
     }
     
     return new Error(message);
