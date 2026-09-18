@@ -1,0 +1,59 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User Profiles
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+                   && request.auth.uid == userId
+                   && request.resource.data.uid == userId
+                   && request.resource.data.accountStatus == 'active';
+      allow update: if request.auth != null 
+                   && request.auth.uid == userId
+                   && request.resource.data.uid == userId
+                   && request.resource.data.accountStatus == resource.data.accountStatus
+                   && request.resource.data.role != 'ADMIN';
+      allow delete: if false; 
+    }
+
+    // Worker Profiles
+    match /workerProfiles/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null 
+                            && request.auth.uid == userId
+                            && (!request.resource.data.keys().hasAll(['verificationStatus']) 
+                                || request.resource.data.verificationStatus == resource.data.verificationStatus 
+                                || request.resource.data.verificationStatus == 'unverified');
+      allow delete: if false;
+    }
+
+    // Employer Profiles
+    match /employerProfiles/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null 
+                            && request.auth.uid == userId
+                            && (!request.resource.data.keys().hasAll(['verificationStatus']) 
+                                || request.resource.data.verificationStatus == resource.data.verificationStatus 
+                                || request.resource.data.verificationStatus == 'unverified');
+      allow delete: if false;
+    }
+
+    // Contractor Profiles
+    match /contractorProfiles/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null 
+                            && request.auth.uid == userId
+                            && (!request.resource.data.keys().hasAll(['verificationStatus']) 
+                                || request.resource.data.verificationStatus == resource.data.verificationStatus 
+                                || request.resource.data.verificationStatus == 'unverified');
+      allow delete: if false;
+    }
+    
+    // Default fallback
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

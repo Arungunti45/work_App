@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    function isReasonableSize() {
+      return request.resource.size < 5 * 1024 * 1024; // 5MB
+    }
+
+    // User Media
+    match /users/{uid}/profile/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid) && isImage() && isReasonableSize();
+    }
+    match /users/{uid}/portfolio/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid) && isImage() && isReasonableSize();
+    }
+
+    // Employer Media
+    match /employers/{uid}/logo/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid) && isImage() && isReasonableSize();
+    }
+    match /employers/{uid}/company/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid) && isImage() && isReasonableSize();
+    }
+
+    // Contractor Media
+    match /contractors/{uid}/profile/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid) && isImage() && isReasonableSize();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

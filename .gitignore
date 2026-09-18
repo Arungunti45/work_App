@@ -1,0 +1,38 @@
+# Node dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+out/
+.next/
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firebase-debug.*.log*
+
+# Private credentials and keys
+*-export.json
+*-service-account.json
+*.pem
+*.key
+*.p12
+
+# OS/Editor temporary files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local configuration
+.npm/
+.yarn/
+.pnpm-store/
